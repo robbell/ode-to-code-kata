@@ -13,7 +13,46 @@ namespace Algorithm
 
         public FinderResult Find(FinderType finderType)
         {
-            var tr = new List<FinderResult>();
+            var comparisons = GetAgeComparisons();
+
+            if(comparisons.Count < 1)
+            {
+                return new FinderResult();
+            }
+
+            return GetResult(comparisons, finderType);
+        }
+
+        private FinderResult GetResult(IList<FinderResult> results, FinderType finderType)
+        {
+            var answer = results[0];
+
+            foreach(var result in results)
+            {
+                switch(finderType)
+                {
+                    case FinderType.Closest:
+                        if(result.AgeDifference < answer.AgeDifference)
+                        {
+                            answer = result;
+                        }
+                        break;
+
+                    case FinderType.Furthest:
+                        if(result.AgeDifference > answer.AgeDifference)
+                        {
+                            answer = result;
+                        }
+                        break;
+                }
+            }
+
+            return answer;
+        }
+
+        private List<FinderResult> GetAgeComparisons()
+        {
+            var results = new List<FinderResult>();
 
             for(var i = 0; i < people.Count - 1; i++)
             {
@@ -30,38 +69,11 @@ namespace Algorithm
                         r.YoungerPerson = people[j];
                         r.OlderPerson = people[i];
                     }
-                    r.D = r.OlderPerson.BirthDate - r.YoungerPerson.BirthDate;
-                    tr.Add(r);
+                    r.AgeDifference = r.OlderPerson.BirthDate - r.YoungerPerson.BirthDate;
+                    results.Add(r);
                 }
             }
-
-            if(tr.Count < 1)
-            {
-                return new FinderResult();
-            }
-
-            FinderResult answer = tr[0];
-            foreach(var result in tr)
-            {
-                switch(finderType)
-                {
-                    case FinderType.Closest:
-                        if(result.D < answer.D)
-                        {
-                            answer = result;
-                        }
-                        break;
-
-                    case FinderType.Furthest:
-                        if(result.D > answer.D)
-                        {
-                            answer = result;
-                        }
-                        break;
-                }
-            }
-
-            return answer;
+            return results;
         }
     }
 }
