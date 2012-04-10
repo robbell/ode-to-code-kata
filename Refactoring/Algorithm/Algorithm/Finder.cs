@@ -4,55 +4,55 @@ namespace Algorithm
 {
     public class Finder
     {
-        private readonly List<Thing> _p;
+        private readonly List<Person> people;
 
-        public Finder(List<Thing> p)
+        public Finder(List<Person> people)
         {
-            _p = p;
+            this.people = people;
         }
 
-        public F Find(FT ft)
+        public FinderResult Find(FinderType finderType)
         {
-            var tr = new List<F>();
+            var tr = new List<FinderResult>();
 
-            for(var i = 0; i < _p.Count - 1; i++)
+            for(var i = 0; i < people.Count - 1; i++)
             {
-                for(var j = i + 1; j < _p.Count; j++)
+                for(var j = i + 1; j < people.Count; j++)
                 {
-                    var r = new F();
-                    if(_p[i].BirthDate < _p[j].BirthDate)
+                    var r = new FinderResult();
+                    if(people[i].BirthDate < people[j].BirthDate)
                     {
-                        r.P1 = _p[i];
-                        r.P2 = _p[j];
+                        r.YoungerPerson = people[i];
+                        r.OlderPerson = people[j];
                     }
                     else
                     {
-                        r.P1 = _p[j];
-                        r.P2 = _p[i];
+                        r.YoungerPerson = people[j];
+                        r.OlderPerson = people[i];
                     }
-                    r.D = r.P2.BirthDate - r.P1.BirthDate;
+                    r.D = r.OlderPerson.BirthDate - r.YoungerPerson.BirthDate;
                     tr.Add(r);
                 }
             }
 
             if(tr.Count < 1)
             {
-                return new F();
+                return new FinderResult();
             }
 
-            F answer = tr[0];
+            FinderResult answer = tr[0];
             foreach(var result in tr)
             {
-                switch(ft)
+                switch(finderType)
                 {
-                    case FT.One:
+                    case FinderType.Closest:
                         if(result.D < answer.D)
                         {
                             answer = result;
                         }
                         break;
 
-                    case FT.Two:
+                    case FinderType.Furthest:
                         if(result.D > answer.D)
                         {
                             answer = result;
