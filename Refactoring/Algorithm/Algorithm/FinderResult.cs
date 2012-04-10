@@ -6,6 +6,10 @@ namespace Algorithm
     {
         public Person YoungerPerson { get; set; }
         public Person OlderPerson { get; set; }
-        public TimeSpan AgeDifference { get; set; }
+
+        public TimeSpan AgeDifference
+        {
+            get { return OlderPerson.BirthDate - YoungerPerson.BirthDate; }
+        }
     }
 }

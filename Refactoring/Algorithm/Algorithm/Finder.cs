@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Algorithm
 {
@@ -13,67 +14,47 @@ namespace Algorithm
 
         public FinderResult Find(FinderType finderType)
         {
-            var comparisons = GetAgeComparisons();
+            var pairs = GetDistinctPairs();
 
-            if(comparisons.Count < 1)
-            {
-                return new FinderResult();
-            }
-
-            return GetResult(comparisons, finderType);
+            return pairs.Any() ? GetResult(pairs, finderType) : new FinderResult();
         }
 
-        private FinderResult GetResult(IList<FinderResult> results, FinderType finderType)
+        private FinderResult GetResult(IEnumerable<FinderResult> results, FinderType finderType)
         {
-            var answer = results[0];
+            var result = new FinderResult();
 
-            foreach(var result in results)
+            switch (finderType)
             {
-                switch(finderType)
-                {
-                    case FinderType.Closest:
-                        if(result.AgeDifference < answer.AgeDifference)
-                        {
-                            answer = result;
-                        }
-                        break;
+                case FinderType.Closest:
+                    result = results.OrderBy(r => r.AgeDifference).FirstOrDefault();
+                    break;
 
-                    case FinderType.Furthest:
-                        if(result.AgeDifference > answer.AgeDifference)
-                        {
-                            answer = result;
-                        }
-                        break;
-                }
+                case FinderType.Furthest:
+                    result = results.OrderBy(r => r.AgeDifference).LastOrDefault();
+                    break;
             }
 
-            return answer;
+            return result;
         }
 
-        private List<FinderResult> GetAgeComparisons()
+        private IEnumerable<FinderResult> GetDistinctPairs()
         {
-            var results = new List<FinderResult>();
-
-            for(var i = 0; i < people.Count - 1; i++)
+            for (var personCount = 0; personCount < people.Count - 1; personCount++)
             {
-                for(var j = i + 1; j < people.Count; j++)
+                for(var comparisonCount = personCount + 1; comparisonCount < people.Count; comparisonCount++)
                 {
-                    var r = new FinderResult();
-                    if(people[i].BirthDate < people[j].BirthDate)
-                    {
-                        r.YoungerPerson = people[i];
-                        r.OlderPerson = people[j];
-                    }
-                    else
-                    {
-                        r.YoungerPerson = people[j];
-                        r.OlderPerson = people[i];
-                    }
-                    r.AgeDifference = r.OlderPerson.BirthDate - r.YoungerPerson.BirthDate;
-                    results.Add(r);
+                    yield return BuildPair(people[personCount], people[comparisonCount]);
                 }
             }
-            return results;
+        }
+
+        private FinderResult BuildPair(Person firstPerson, Person secondPerson)
+        {
+            return new FinderResult
+                       {
+                           OlderPerson = firstPerson.BirthDate > secondPerson.BirthDate ? firstPerson : secondPerson,
+                           YoungerPerson = firstPerson.BirthDate < secondPerson.BirthDate ? firstPerson : secondPerson
+                       };
         }
     }
 }
