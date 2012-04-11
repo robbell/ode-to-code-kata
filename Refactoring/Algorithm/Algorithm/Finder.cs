@@ -16,25 +16,14 @@ namespace Algorithm
         {
             var pairs = GetDistinctPairs();
 
-            return pairs.Any() ? GetResult(pairs, finderType) : new FinderResult();
+            return pairs.Any() ? FindPair(pairs, finderType) : new FinderResult();
         }
 
-        private FinderResult GetResult(IEnumerable<FinderResult> results, FinderType finderType)
+        private FinderResult FindPair(IEnumerable<FinderResult> pairs, FinderType finderType)
         {
-            var result = new FinderResult();
+            var orderedPairs = pairs.OrderBy(r => r.AgeDifference);
 
-            switch (finderType)
-            {
-                case FinderType.Closest:
-                    result = results.OrderBy(r => r.AgeDifference).FirstOrDefault();
-                    break;
-
-                case FinderType.Furthest:
-                    result = results.OrderBy(r => r.AgeDifference).LastOrDefault();
-                    break;
-            }
-
-            return result;
+            return finderType == FinderType.Closest ? orderedPairs.First() : orderedPairs.Last();
         }
 
         private IEnumerable<FinderResult> GetDistinctPairs()
@@ -43,18 +32,9 @@ namespace Algorithm
             {
                 for(var comparisonCount = personCount + 1; comparisonCount < people.Count; comparisonCount++)
                 {
-                    yield return BuildPair(people[personCount], people[comparisonCount]);
+                    yield return new FinderResult(people[personCount], people[comparisonCount]);
                 }
             }
-        }
-
-        private FinderResult BuildPair(Person firstPerson, Person secondPerson)
-        {
-            return new FinderResult
-                       {
-                           OlderPerson = firstPerson.BirthDate > secondPerson.BirthDate ? firstPerson : secondPerson,
-                           YoungerPerson = firstPerson.BirthDate < secondPerson.BirthDate ? firstPerson : secondPerson
-                       };
         }
     }
 }
